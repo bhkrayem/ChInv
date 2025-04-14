@@ -63,4 +63,12 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    implementation("androidx.compose.compiler:compiler:1.5.3")
+
+}
+// ✅ Add this block outside dependencies {} but inside the build.gradle.kts file
+plugins.withId("org.jetbrains.kotlin.android") {
+    dependencies {
+        add("implementation", "androidx.compose.compiler:compiler:1.5.3")
+    }
 }
