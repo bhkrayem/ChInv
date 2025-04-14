@@ -41,7 +41,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "2.0.0"
     }
 }
 
@@ -63,7 +63,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    implementation("androidx.compose.compiler:compiler:1.5.3")
+    implementation("androidx.compose.compiler:compiler:1.5.11")
 
 }
 // ✅ Add this block outside dependencies {} but inside the build.gradle.kts file
