@@ -8,6 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bahaa.chinv.viewmodel.ItemViewModel
+import com.bahaa.chinv.data.Item
+
 
 @Composable
 fun AddItemScreen(navController: NavHostController) {
@@ -15,6 +19,8 @@ fun AddItemScreen(navController: NavHostController) {
     var unit by remember { mutableStateOf("box") }
     var boxPrice by remember { mutableStateOf("") }
     var piecesPerBox by remember { mutableStateOf("") }
+    val viewModel: ItemViewModel = viewModel()
+
 
     Column(
         modifier = Modifier
@@ -70,8 +76,16 @@ fun AddItemScreen(navController: NavHostController) {
 
         Button(
             onClick = {
-                // TODO: Save item
-                navController.popBackStack()
+                if (name.isNotBlank() && boxPrice.isNotBlank() && piecesPerBox.isNotBlank()) {
+                    val item = Item(
+                        name = name,
+                        unit = unit,
+                        boxPrice = boxPrice.toDoubleOrNull() ?: 0.0,
+                        piecesPerBox = piecesPerBox.toIntOrNull() ?: 1
+                    )
+                    viewModel.insertItem(item)
+                    navController.popBackStack()
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
