@@ -29,12 +29,14 @@ fun AddCustomerScreen(
     navController: NavHostController,
     customerId: Int = 0,
     existingName: String = "",
-    existingPhone: String = ""
+    existingPhone: String = "",
+    existingAddress: String = ""
 ) {
     val viewModel: CustomerViewModel = viewModel()
 
     var name by remember { mutableStateOf(existingName) }
     var phone by remember { mutableStateOf(existingPhone) }
+    var address by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -59,6 +61,13 @@ fun AddCustomerScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
 
+        OutlinedTextField(
+            value = address,
+            onValueChange = { address = it },
+            label = { Text("Address") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.weight(1f))
 
         Button(
@@ -67,7 +76,9 @@ fun AddCustomerScreen(
                     val customer = Customer(
                         id = customerId,
                         name = name,
-                        phone = phone
+                        phone = phone,
+                        address = address
+
                     )
                     viewModel.insert(customer)
                     navController.popBackStack()

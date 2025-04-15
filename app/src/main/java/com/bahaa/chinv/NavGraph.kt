@@ -44,12 +44,14 @@ fun AppNavGraph(
             val id = backStackEntry.arguments?.getString("id")?.toInt() ?: 0
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val phone = backStackEntry.arguments?.getString("phone") ?: ""
+            val address = backStackEntry.arguments?.getString("address") ?: ""
 
             AddCustomerScreen(
                 navController = navController,
                 customerId = id,
                 existingName = name,
-                existingPhone = phone
+                existingPhone = phone,
+                existingAddress = address
             )
         }
 
