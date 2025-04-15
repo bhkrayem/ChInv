@@ -10,4 +10,7 @@ interface ItemDao {
 
     @Query("SELECT * FROM items ORDER BY id DESC")
     fun getAllItems(): Flow<List<Item>>
+
+    @Delete
+    suspend fun deleteItem(item: Item)
 }

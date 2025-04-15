@@ -27,4 +27,10 @@ class ItemViewModel(application: Application) : AndroidViewModel(application) {
             itemDao.insertItem(item)
         }
     }
+
+    fun deleteItem(item: Item) {
+        viewModelScope.launch {
+            itemDao.deleteItem(item)
+        }
+    }
 }

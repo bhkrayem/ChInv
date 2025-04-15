@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.collectLatest
 fun ItemsScreen(navController: NavHostController) {
     val viewModel: ItemViewModel = viewModel()
     val itemListState = viewModel.items.collectAsState()
-
     val items: List<Item> = itemListState.value
 
     Column(
@@ -65,6 +64,35 @@ fun ItemsScreen(navController: NavHostController) {
                             Text("Unit: ${item.unit}")
                             Text("Box Price: ${item.boxPrice}")
                             Text("Pieces per box: ${item.piecesPerBox}")
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Button(
+                                    onClick = {
+                                        // 🕓 Edit action will be wired in next step
+                                        // navController.navigate("edit_item/${item.id}")
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Edit")
+                                }
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Button(
+                                    onClick = {
+                                        viewModel.deleteItem(item)
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                ) {
+                                    Text("Delete")
+                                }
+                            }
                         }
                     }
                 }
