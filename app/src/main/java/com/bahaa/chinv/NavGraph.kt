@@ -20,5 +20,27 @@ fun AppNavGraph(
         composable(Screen.Customers.route) { CustomersScreen(navController) }
         composable(Screen.Reports.route) { ReportsScreen(navController) }
         composable("add_item") { AddItemScreen(navController) }
+        composable("edit_item/{id}/{name}/{unit}/{price}/{pieces}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toInt() ?: 0
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val unit = backStackEntry.arguments?.getString("unit") ?: "box"
+            val price = backStackEntry.arguments?.getString("price")?.toDoubleOrNull() ?: 0.0
+            val pieces = backStackEntry.arguments?.getString("pieces")?.toIntOrNull() ?: 1
+
+            AddItemScreen(
+                navController = navController,
+                itemId = id,
+                existingName = name,
+                existingUnit = unit,
+                existingBoxPrice = price,
+                existingPiecesPerBox = pieces
+            )
+        }
+
     }
+
+
 }
+
+
+
