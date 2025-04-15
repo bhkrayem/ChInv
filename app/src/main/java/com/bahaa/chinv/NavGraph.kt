@@ -36,6 +36,22 @@ fun AppNavGraph(
                 existingPiecesPerBox = pieces
             )
         }
+        composable(Screen.AddCustomer.route) {
+            AddCustomerScreen(navController)
+        }
+
+        composable("edit_customer/{id}/{name}/{phone}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toInt() ?: 0
+            val name = backStackEntry.arguments?.getString("name") ?: ""
+            val phone = backStackEntry.arguments?.getString("phone") ?: ""
+
+            AddCustomerScreen(
+                navController = navController,
+                customerId = id,
+                existingName = name,
+                existingPhone = phone
+            )
+        }
 
     }
 
