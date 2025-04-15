@@ -1,0 +1,13 @@
+package com.bahaa.chinv.data
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "items")
+data class Item(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val name: String,
+    val unit: String, // "box" or "piece"
+    val boxPrice: Double,
+    val piecesPerBox: Int
+)
