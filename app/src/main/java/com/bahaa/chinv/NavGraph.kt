@@ -19,5 +19,6 @@ fun AppNavGraph(
         composable(Screen.Items.route) { ItemsScreen(navController) }
         composable(Screen.Customers.route) { CustomersScreen(navController) }
         composable(Screen.Reports.route) { ReportsScreen(navController) }
+        composable("add_item") { AddItemScreen(navController) }
     }
 }

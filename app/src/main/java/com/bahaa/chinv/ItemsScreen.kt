@@ -22,25 +22,19 @@ fun ItemsScreen(navController: NavHostController) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+
+
+
         // Add New Item Button
         Button(
             onClick = {
-                // TODO: Open Add New Item screen
+                navController.navigate(Screen.AddItem.route)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
         ) {
             Text("Add New Item")
-        }
-
-        // Placeholder for items list
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("No items yet.")
         }
     }
 }
