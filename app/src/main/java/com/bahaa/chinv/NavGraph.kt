@@ -40,7 +40,7 @@ fun AppNavGraph(
             AddCustomerScreen(navController)
         }
 
-        composable("edit_customer/{id}/{name}/{phone}") { backStackEntry ->
+        composable("edit_customer/{id}/{name}/{phone}/{address}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")?.toInt() ?: 0
             val name = backStackEntry.arguments?.getString("name") ?: ""
             val phone = backStackEntry.arguments?.getString("phone") ?: ""
