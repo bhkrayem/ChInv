@@ -43,6 +43,8 @@ fun InvoiceScreen(navController: NavHostController) {
     val context = LocalContext.current
     val dao = AppDatabase.getDatabase(context).invoiceDao()
     val viewModel = remember { InvoiceViewModel(dao) }
+    val nextInvoiceNumber by viewModel.getNextInvoiceNumber().collectAsState(initial = 1)
+
 
     var customerName by remember { mutableStateOf("") }
     var customerAddress by remember { mutableStateOf("") }
@@ -59,7 +61,8 @@ fun InvoiceScreen(navController: NavHostController) {
     val net = total - discountValue
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Invoice #AUTO", style = MaterialTheme.typography.titleMedium)
+
+        Text("Invoice #$nextInvoiceNumber", style = MaterialTheme.typography.titleMedium)
         Text("Date: $date", style = MaterialTheme.typography.bodySmall)
         Text("Time: $time", style = MaterialTheme.typography.bodySmall)
 

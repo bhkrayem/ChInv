@@ -8,6 +8,7 @@ import com.bahaa.chinv.data.InvoiceItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
@@ -16,6 +17,12 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
     val invoiceItems: StateFlow<List<InvoiceItem>> = _invoiceItems
 
     private var currentInvoiceId = 0
+
+    fun getNextInvoiceNumber(): Flow<Int> {
+        return dao.getAllInvoices().map { invoices ->
+            if (invoices.isEmpty()) 1 else invoices.maxOf { it.id } + 1
+        }
+    }
 
     fun addItem(item: InvoiceItem) {
         _invoiceItems.value = _invoiceItems.value + item
