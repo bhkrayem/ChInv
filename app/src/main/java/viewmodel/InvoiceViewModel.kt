@@ -1,0 +1,71 @@
+package com.bahaa.chinv.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.bahaa.chinv.data.Invoice
+import com.bahaa.chinv.data.InvoiceDao
+import com.bahaa.chinv.data.InvoiceItem
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
+
+    private val _invoiceItems = MutableStateFlow<List<InvoiceItem>>(emptyList())
+    val invoiceItems: StateFlow<List<InvoiceItem>> = _invoiceItems
+
+    private var currentInvoiceId = 0
+
+    fun addItem(item: InvoiceItem) {
+        _invoiceItems.value = _invoiceItems.value + item
+    }
+
+    fun removeItem(index: Int) {
+        _invoiceItems.value = _invoiceItems.value.toMutableList().also { it.removeAt(index) }
+    }
+
+    fun clearItems() {
+        _invoiceItems.value = emptyList()
+    }
+
+    fun saveInvoice(
+        customerName: String,
+        customerAddress: String,
+        date: String,
+        time: String,
+        discount: Double
+    ) {
+        viewModelScope.launch {
+            val total = _invoiceItems.value.sumOf { it.value }
+            val net = total - discount
+
+            val invoice = Invoice(
+                customerName = customerName,
+                customerAddress = customerAddress,
+                date = date,
+                time = time,
+                discount = discount,
+                total = total,
+                netValue = net
+            )
+
+            val invoiceId = dao.insertInvoice(invoice).toInt()
+            currentInvoiceId = invoiceId
+
+            val updatedItems = _invoiceItems.value.map {
+                it.copy(invoiceId = invoiceId)
+            }
+
+            dao.insertInvoiceItems(updatedItems)
+        }
+    }
+
+    fun getInvoiceItems(invoiceId: Int): Flow<List<InvoiceItem>> {
+        return dao.getItemsForInvoice(invoiceId)
+    }
+
+    fun getAllInvoices(): Flow<List<Invoice>> {
+        return dao.getAllInvoices()
+    }
+}
