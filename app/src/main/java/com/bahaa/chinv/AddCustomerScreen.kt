@@ -36,7 +36,7 @@ fun AddCustomerScreen(
 
     var name by remember { mutableStateOf(existingName) }
     var phone by remember { mutableStateOf(existingPhone) }
-    var address by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf(existingAddress) }
 
     Column(
         modifier = Modifier

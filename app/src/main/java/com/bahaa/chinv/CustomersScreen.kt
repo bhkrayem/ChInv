@@ -1,5 +1,6 @@
 package com.bahaa.chinv
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bahaa.chinv.data.Customer
 import com.bahaa.chinv.viewmodel.CustomerViewModel
+
 
 @Composable
 fun CustomersScreen(navController: NavHostController) {
@@ -90,7 +92,11 @@ fun CustomersScreen(navController: NavHostController) {
                                 Button(
                                     onClick = {
                                         navController.navigate(
-                                            "edit_customer/${customer.id}/${customer.name}/${customer.phone}/${customer.address}"
+                                            "edit_customer/${customer.id}/${Uri.encode(customer.name)}/${
+                                                Uri.encode(
+                                                    customer.phone
+                                                )
+                                            }/${Uri.encode(customer.address)}"
                                         )
                                     },
                                     modifier = Modifier.weight(1f)
