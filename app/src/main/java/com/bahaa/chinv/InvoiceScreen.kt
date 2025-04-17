@@ -273,7 +273,7 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
 
                                 selectedItem?.let {
                                     val unitPrice = if (unit == "box") it.boxPrice else it.boxPrice / it.piecesPerBox
-                                    price = unitPrice.toString()
+                                    price = String.format("%.2f", unitPrice)
 
                                 }
                             }
