@@ -23,6 +23,8 @@ import com.bahaa.chinv.viewmodel.InvoiceViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import com.bahaa.chinv.viewmodel.CustomerViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @SuppressLint("SimpleDateFormat")
@@ -31,6 +33,9 @@ fun InvoiceScreen(navController: NavHostController) {
     val context = LocalContext.current
     val dao = AppDatabase.getDatabase(context).invoiceDao()
     val viewModel = remember { InvoiceViewModel(dao) }
+    val customerViewModel: CustomerViewModel = viewModel()
+    val allCustomers by customerViewModel.customers.collectAsState()
+    var showCustomerSuggestions by remember { mutableStateOf(false) }
     val nextInvoiceNumber by viewModel.getNextInvoiceNumber().collectAsState(initial = 1)
 
     var customerName by remember { mutableStateOf("") }
@@ -64,12 +69,38 @@ fun InvoiceScreen(navController: NavHostController) {
         )
 
         OutlinedTextField(
-            value = customerAddress,
-            onValueChange = { customerAddress = it },
-            label = { Text("Customer Address") },
+            value = customerName,
+            onValueChange = {
+                customerName = it
+                showCustomerSuggestions = true
+            },
+            label = { Text("Customer Name") },
             modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             enabled = !saved
         )
+
+        if (showCustomerSuggestions && customerName.isNotBlank()) {
+            val suggestions = allCustomers.filter {
+                it.name.contains(customerName, ignoreCase = true)
+            }
+
+            Column {
+                suggestions.forEach { customer ->
+                    Text(
+                        text = customer.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable {
+                                customerName = customer.name
+                                showCustomerSuggestions = false
+                            }
+                    )
+                }
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
