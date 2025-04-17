@@ -60,13 +60,7 @@ fun InvoiceScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = customerName,
-            onValueChange = { customerName = it },
-            label = { Text("Customer Name") },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !saved
-        )
+
 
         OutlinedTextField(
             value = customerName,
