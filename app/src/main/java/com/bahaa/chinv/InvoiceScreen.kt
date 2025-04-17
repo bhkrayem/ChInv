@@ -1,30 +1,15 @@
 package com.bahaa.chinv
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,9 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bahaa.chinv.data.AppDatabase
 import com.bahaa.chinv.data.InvoiceItem
+import com.bahaa.chinv.data.Item
 import com.bahaa.chinv.viewmodel.InvoiceViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
+
 
 @SuppressLint("SimpleDateFormat")
 @Composable
@@ -44,7 +32,6 @@ fun InvoiceScreen(navController: NavHostController) {
     val dao = AppDatabase.getDatabase(context).invoiceDao()
     val viewModel = remember { InvoiceViewModel(dao) }
     val nextInvoiceNumber by viewModel.getNextInvoiceNumber().collectAsState(initial = 1)
-
 
     var customerName by remember { mutableStateOf("") }
     var customerAddress by remember { mutableStateOf("") }
@@ -107,9 +94,7 @@ fun InvoiceScreen(navController: NavHostController) {
         }
 
         if (!saved) {
-            AddInvoiceItemRow(onAdd = { item ->
-                viewModel.addItem(item)
-            })
+            AddInvoiceItemRow(onAdd = { item -> viewModel.addItem(item) })
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -140,7 +125,7 @@ fun InvoiceScreen(navController: NavHostController) {
                 Text("Edit")
             }
 
-            Button(onClick = { /* Print logic here */ }, enabled = saved) {
+            Button(onClick = { /* Print logic */ }, enabled = saved) {
                 Text("Print")
             }
         }
@@ -149,23 +134,65 @@ fun InvoiceScreen(navController: NavHostController) {
 
 @Composable
 fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
-    var name by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val itemDao = remember { AppDatabase.getDatabase(context).itemDao() }
+    var allItems by remember { mutableStateOf<List<Item>>(emptyList()) }
+    var itemName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("box") }
     var price by remember { mutableStateOf("") }
+    var showSuggestions by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            allItems = itemDao.getAll()
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = itemName,
+            onValueChange = {
+                itemName = it
+                showSuggestions = true
+            },
+            label = { Text("Item") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+        )
+
+        if (showSuggestions && itemName.isNotBlank()) {
+            val suggestions = allItems.filter {
+                it.name.contains(itemName, ignoreCase = true)
+            }
+
+            Column {
+                suggestions.forEach { item ->
+                    Text(
+                        text = item.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable {
+                                itemName = item.name
+                                val unitPrice = if (unit == "box") item.boxPrice
+                                else item.boxPrice / item.piecesPerBox
+                                price = unitPrice.toString()
+                                quantity = "1.0"
+                                showSuggestions = false
+                            }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Item") },
-                modifier = Modifier.weight(1f)
-            )
-
             OutlinedTextField(
                 value = quantity,
                 onValueChange = { quantity = it },
@@ -197,16 +224,15 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                 val value = qty * unitPrice
                 onAdd(
                     InvoiceItem(
-                        itemName = name,
+                        itemName = itemName,
                         quantity = qty,
                         unit = unit,
                         unitPrice = unitPrice,
                         value = value,
-                        invoiceId = 0 // will be updated later
+                        invoiceId = 0
                     )
                 )
-
-                name = ""
+                itemName = ""
                 quantity = ""
                 unit = "box"
                 price = ""
