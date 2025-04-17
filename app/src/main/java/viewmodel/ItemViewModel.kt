@@ -5,17 +5,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.bahaa.chinv.data.AppDatabase
 import com.bahaa.chinv.data.Item
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.map
 
 class ItemViewModel(application: Application) : AndroidViewModel(application) {
     private val itemDao = AppDatabase.getDatabase(application).itemDao()
 
-    val items: StateFlow<List<Item>> = itemDao.getAllItems()
-        .map { it.sortedByDescending { item -> item.id } }
+    val items: StateFlow<List<Item>> = itemDao.getAll() // MATCH DAO NAME HERE
+        .map { itemList -> itemList.sortedByDescending { it.id } }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
