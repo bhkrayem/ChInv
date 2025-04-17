@@ -55,7 +55,8 @@ fun AddItemScreen(
             value = name,
             onValueChange = { name = it },
             label = { Text("Item Name") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

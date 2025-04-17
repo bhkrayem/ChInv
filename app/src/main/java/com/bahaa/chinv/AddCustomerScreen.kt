@@ -17,12 +17,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.bahaa.chinv.data.Customer
 import com.bahaa.chinv.viewmodel.CustomerViewModel
+import androidx.compose.ui.text.input.KeyboardType
+
 
 @Composable
 fun AddCustomerScreen(
@@ -50,7 +51,8 @@ fun AddCustomerScreen(
             value = name,
             onValueChange = { name = it },
             label = { Text("Customer Name") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         OutlinedTextField(
@@ -65,7 +67,8 @@ fun AddCustomerScreen(
             value = address,
             onValueChange = { address = it },
             label = { Text("Address") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
 
         Spacer(modifier = Modifier.weight(1f))
