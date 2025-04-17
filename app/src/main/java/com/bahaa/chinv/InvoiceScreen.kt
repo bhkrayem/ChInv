@@ -25,6 +25,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.bahaa.chinv.viewmodel.CustomerViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.outlined.ArrowDropDown
+
+
+
 
 
 @SuppressLint("SimpleDateFormat")
@@ -229,7 +234,10 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
-            Box(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier
+                .weight(1f)
+                .padding(top = 8.dp)) {
+
                 OutlinedTextField(
                     value = unit,
                     onValueChange = {},
@@ -237,7 +245,15 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { expanded = true },
-                    readOnly = true
+                    readOnly = true,
+                    trailingIcon = {
+                        IconButton(onClick = { expanded = !expanded }) {
+                            Icon(
+                                imageVector = Icons.Outlined.ArrowDropDown,
+                                contentDescription = "Dropdown"
+                            )
+                        }
+                    }
                 )
 
                 DropdownMenu(
