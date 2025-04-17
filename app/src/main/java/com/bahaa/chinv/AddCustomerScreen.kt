@@ -43,6 +43,7 @@ fun AddCustomerScreen(
     var phone by remember { mutableStateOf(existingPhone) }
     var address by remember { mutableStateOf(existingAddress) }
     val allCustomers by viewModel.customers.collectAsState()
+
     var showSuggestions by remember { mutableStateOf(false) }
 
 
