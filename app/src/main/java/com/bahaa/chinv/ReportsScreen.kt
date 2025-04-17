@@ -1,13 +1,16 @@
 package com.bahaa.chinv
 
-import android.annotation.SuppressLint
+import android.app.DatePickerDialog
+import android.widget.DatePicker
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -25,109 +28,94 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bahaa.chinv.data.AppDatabase
 import com.bahaa.chinv.data.Invoice
-import com.bahaa.chinv.data.InvoiceItem
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
-@SuppressLint("SimpleDateFormat")
 @Composable
 fun ReportsScreen(navController: NavHostController) {
     val context = LocalContext.current
-    val invoiceDao = AppDatabase.getDatabase(context).invoiceDao()
-    val scope = rememberCoroutineScope()
+    val invoiceDao = remember { AppDatabase.getDatabase(context).invoiceDao() }
+    val coroutineScope = rememberCoroutineScope()
 
-    val today = SimpleDateFormat("yyyy-MM-dd").format(Date())
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val today = dateFormat.format(Date())
+
     var startDate by remember { mutableStateOf(today) }
     var endDate by remember { mutableStateOf(today) }
+    var filteredInvoices by remember { mutableStateOf<List<Invoice>>(emptyList()) }
 
-    var reportData by remember { mutableStateOf<Map<Invoice, List<InvoiceItem>>>(emptyMap()) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("Sales Report", style = MaterialTheme.typography.headlineMedium)
+        Text("Reports", style = MaterialTheme.typography.titleLarge)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(
-                value = startDate,
-                onValueChange = { startDate = it },
-                label = { Text("From") },
-                modifier = Modifier.weight(1f)
-            )
+            DateField(label = "Start Date", date = startDate, onDateSelected = { startDate = it })
+            Spacer(modifier = Modifier.width(8.dp))
+            DateField(label = "End Date", date = endDate, onDateSelected = { endDate = it })
 
-            OutlinedTextField(
-                value = endDate,
-                onValueChange = { endDate = it },
-                label = { Text("To") },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = {
-                scope.launch {
-                    val invoices = invoiceDao.getInvoicesBetween(startDate, endDate)
-                    val fullData = mutableMapOf<Invoice, List<InvoiceItem>>()
-
-                    for (invoice in invoices) {
-                        val items = invoiceDao.getItemsForInvoiceOnce(invoice.id)
-                        fullData[invoice] = items
-                    }
-                    reportData = fullData
+                coroutineScope.launch {
+                    // Collect from Flow using .first()
+                    filteredInvoices =
+                        invoiceDao.getInvoicesBetweenDates(startDate, endDate).first()
                 }
             }) {
                 Text("Show")
             }
-
-            Button(onClick = {
-                // PDF logic (Step 3)
-            }) {
-                Text("Share PDF")
-            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            reportData.forEach { (invoice, items) ->
-                item {
-                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                        Text("Invoice Number: ${invoice.id}")
-                        Text("Date: ${invoice.date}    Time: ${invoice.time}")
-                        Text("Customer Name: ${invoice.customerName}")
-
-                        items.forEach { item ->
-                            Text(
-                                "${item.itemName}    ${item.quantity} ${item.unit} x${item.unitPrice} = ${
-                                    String.format(
-                                        "%.2f",
-                                        item.value
-                                    )
-                                }   Free: ${item.freeQuantity}"
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            "Total: ${
-                                String.format(
-                                    "%.2f",
-                                    invoice.total
-                                )
-                            }    Discount: ${
-                                String.format(
-                                    "%.2f",
-                                    invoice.discount
-                                )
-                            }    Net Value: ${String.format("%.2f", invoice.netValue)}"
-                        )
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    }
-                }
-            }
+        filteredInvoices.forEach { invoice ->
+            Text("Invoice #${invoice.id}")
+            Text("Customer: ${invoice.customerName}")
+            Text("Date: ${invoice.date}   Time: ${invoice.time}")
+            Text("Discount: ${invoice.discount}")
+            Text("Total: ${invoice.total}")
+            Text("Net: ${invoice.netValue}")
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
         }
     }
+}
+
+@Composable
+fun DateField(label: String, date: String, onDateSelected: (String) -> Unit) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _: DatePicker, year, month, dayOfMonth ->
+                val formatted = "%04d-%02d-%02d".format(year, month + 1, dayOfMonth)
+                onDateSelected(formatted)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+
+    OutlinedTextField(
+        value = date,
+        onValueChange = {},
+        label = { Text(label) },
+        readOnly = true,
+        modifier = Modifier
+            .width(140.dp)
+            .clickable {
+                datePickerDialog.show()
+            }
+    )
 }

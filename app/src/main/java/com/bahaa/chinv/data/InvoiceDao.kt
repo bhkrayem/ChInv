@@ -32,4 +32,8 @@ interface InvoiceDao {
 
     @Query("SELECT * FROM invoice_items WHERE invoiceId = :invoiceId")
     suspend fun getItemsForInvoiceOnce(invoiceId: Int): List<InvoiceItem>
+
+    @Query("SELECT * FROM invoices WHERE date BETWEEN :startDate AND :endDate ORDER BY date DESC, time DESC")
+    fun getInvoicesBetweenDates(startDate: String, endDate: String): Flow<List<Invoice>>
+
 }
