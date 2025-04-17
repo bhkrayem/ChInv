@@ -167,6 +167,8 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
     val context = LocalContext.current
     val itemDao = remember { AppDatabase.getDatabase(context).itemDao() }
     var allItems by remember { mutableStateOf<List<Item>>(emptyList()) }
+    var selectedItem by remember { mutableStateOf<Item?>(null) }
+
     var itemName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("box") }
@@ -266,6 +268,11 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                             onClick = {
                                 unit = option
                                 expanded = false
+
+                                selectedItem?.let {
+                                    val unitPrice = if (unit == "box") it.boxPrice else it.boxPrice / it.piecesPerBox
+                                    price = unitPrice.toString()
+                                }
                             }
                         )
                     }
