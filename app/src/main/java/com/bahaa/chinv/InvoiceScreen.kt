@@ -165,6 +165,9 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
     var itemName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("box") }
+    val unitOptions = listOf("box", "piece")
+    var expanded by remember { mutableStateOf(false) }
+
     var price by remember { mutableStateOf("") }
     var showSuggestions by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -226,12 +229,33 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
 
-            OutlinedTextField(
-                value = unit,
-                onValueChange = { unit = it },
-                label = { Text("Unit") },
-                modifier = Modifier.weight(1f)
-            )
+            Box(modifier = Modifier.weight(1f)) {
+                OutlinedTextField(
+                    value = unit,
+                    onValueChange = {},
+                    label = { Text("Unit") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { expanded = true },
+                    readOnly = true
+                )
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    unitOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                unit = option
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
 
             OutlinedTextField(
                 value = price,
