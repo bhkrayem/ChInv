@@ -65,6 +65,8 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
             }
 
             dao.insertInvoiceItems(updatedItems)
+            dao.insertInvoiceItems(updatedItems)
+            clearItems() // ✅ optional but helpful
         }
     }
 
