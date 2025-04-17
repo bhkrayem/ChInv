@@ -64,7 +64,7 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
                 it.copy(invoiceId = invoiceId)
             }
 
-            
+
             dao.insertInvoiceItems(updatedItems)
             clearItems() // ✅ optional but helpful
         }
