@@ -211,11 +211,12 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                             .padding(8.dp)
                             .clickable {
                                 itemName = item.name
-                                val unitPrice = if (unit == "box") item.boxPrice
-                                else item.boxPrice / item.piecesPerBox
-                                price = unitPrice.toString()
+                                selectedItem = item
                                 quantity = "1.0"
                                 showSuggestions = false
+
+                                val unitPrice = if (unit == "box") item.boxPrice else item.boxPrice / item.piecesPerBox
+                                price = unitPrice.toString()
                             }
                     )
                 }
