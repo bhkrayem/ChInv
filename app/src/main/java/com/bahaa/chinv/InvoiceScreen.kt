@@ -145,8 +145,8 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            allItems = itemDao.getAll()
+        itemDao.getAll().collect { itemList ->
+            allItems = itemList
         }
     }
 
