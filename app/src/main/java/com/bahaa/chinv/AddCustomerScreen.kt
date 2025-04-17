@@ -23,6 +23,10 @@ import androidx.navigation.NavHostController
 import com.bahaa.chinv.data.Customer
 import com.bahaa.chinv.viewmodel.CustomerViewModel
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.clickable
+
+
 
 
 @Composable
@@ -38,6 +42,9 @@ fun AddCustomerScreen(
     var name by remember { mutableStateOf(existingName) }
     var phone by remember { mutableStateOf(existingPhone) }
     var address by remember { mutableStateOf(existingAddress) }
+    val allCustomers by viewModel.customers.collectAsState()
+    var showSuggestions by remember { mutableStateOf(false) }
+
 
     Column(
         modifier = Modifier
@@ -49,11 +56,40 @@ fun AddCustomerScreen(
 
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = {
+                name = it
+                showSuggestions = true
+            },
             label = { Text("Customer Name") },
             modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
+        if (showSuggestions && name.isNotBlank()) {
+            val suggestions = allCustomers.filter {
+                it.name.contains(name, ignoreCase = true)
+            }
+
+            Column {
+                suggestions.forEach { customer ->
+                    Text(
+                        text = customer.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable {
+                                name = customer.name
+                                address = customer.address
+                                phone = customer.phone
+                                showSuggestions = false
+                            }
+                    )
+                }
+            }
+        }
+
+
+
+
 
         OutlinedTextField(
             value = phone,
