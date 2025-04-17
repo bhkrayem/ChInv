@@ -9,6 +9,7 @@ data class InvoiceItem(
     val invoiceId: Int,  // foreign key to Invoice.id
     val itemName: String,
     val quantity: Double,
+    val freeQuantity: Double = 0.0,
     val unit: String, // "box" or "piece"
     val unitPrice: Double,
     val value: Double

@@ -129,6 +129,8 @@ fun InvoiceScreen(navController: NavHostController) {
                     Text("Qty: ${item.quantity}", modifier = Modifier.weight(1f))
                     Text("${item.unit}", modifier = Modifier.weight(1f))
                     Text("${item.unitPrice}", modifier = Modifier.weight(1f))
+                    Text("Free: ${item.freeQuantity}", modifier = Modifier.weight(1f))
+
                     Text("= ${item.value}", modifier = Modifier.weight(1f))
                     if (!saved) {
                         IconButton(onClick = { viewModel.removeItem(index) }) {
@@ -200,6 +202,8 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
     var price by remember { mutableStateOf("") }
     var showSuggestions by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    var freeQuantity by remember { mutableStateOf("") }
+
 
     LaunchedEffect(Unit) {
         itemDao.getAll().collect { itemList ->
@@ -308,6 +312,15 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                 }
             }
 
+            OutlinedTextField(
+                value = freeQuantity,
+                onValueChange = { freeQuantity = it },
+                label = { Text("Free Qty") },
+                modifier = Modifier.weight(1f),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+
 
             OutlinedTextField(
                 value = price,
@@ -325,10 +338,12 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                 val qty = quantity.toDoubleOrNull() ?: 0.0
                 val unitPrice = price.toDoubleOrNull() ?: 0.0
                 val value = qty * unitPrice
+                val freeQty = freeQuantity.toDoubleOrNull() ?: 0.0
                 onAdd(
                     InvoiceItem(
                         itemName = itemName,
                         quantity = qty,
+                        freeQuantity = freeQty,
                         unit = unit,
                         unitPrice = unitPrice,
                         value = value,
@@ -339,6 +354,7 @@ fun AddInvoiceItemRow(onAdd: (InvoiceItem) -> Unit) {
                 quantity = ""
                 unit = "box"
                 price = ""
+                freeQuantity = ""
             },
             modifier = Modifier
                 .align(Alignment.End)
