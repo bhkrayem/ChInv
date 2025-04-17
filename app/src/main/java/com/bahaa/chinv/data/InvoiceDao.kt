@@ -26,4 +26,10 @@ interface InvoiceDao {
 
     @Query("DELETE FROM invoice_items WHERE invoiceId = :invoiceId")
     suspend fun deleteInvoiceItems(invoiceId: Int)
+
+    @Query("SELECT * FROM invoices WHERE date BETWEEN :start AND :end ORDER BY id DESC")
+    suspend fun getInvoicesBetween(start: String, end: String): List<Invoice>
+
+    @Query("SELECT * FROM invoice_items WHERE invoiceId = :invoiceId")
+    suspend fun getItemsForInvoiceOnce(invoiceId: Int): List<InvoiceItem>
 }
