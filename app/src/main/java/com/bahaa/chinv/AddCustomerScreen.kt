@@ -25,6 +25,8 @@ import com.bahaa.chinv.viewmodel.CustomerViewModel
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.runtime.LaunchedEffect
+
 
 
 
@@ -43,6 +45,10 @@ fun AddCustomerScreen(
     var phone by remember { mutableStateOf(existingPhone) }
     var address by remember { mutableStateOf(existingAddress) }
     val allCustomers by viewModel.customers.collectAsState()
+    LaunchedEffect(allCustomers) {
+        println("LOADED CUSTOMERS: ${allCustomers.size}")
+        allCustomers.forEach { println(it.name) }
+    }
 
     var showSuggestions by remember { mutableStateOf(false) }
 
