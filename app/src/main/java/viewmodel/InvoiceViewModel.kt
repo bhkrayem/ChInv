@@ -38,6 +38,7 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
         _invoiceItems.value = emptyList()
     }
 
+
     fun saveInvoice(
         customerName: String,
         customerAddress: String,
@@ -46,55 +47,45 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
         discount: Double,
         invoiceId: Int? = null
     ) {
-        fun saveInvoice(
-            customerName: String,
-            customerAddress: String,
-            date: String,
-            time: String,
-            discount: Double,
-            invoiceId: Int? = null
-        ) {
-            viewModelScope.launch {
-                val total = _invoiceItems.value.sumOf { it.value }
-                val net = total - discount
+        viewModelScope.launch {
+            val total = _invoiceItems.value.sumOf { it.value }
+            val net = total - discount
 
-                Log.d("InvoiceSave", "Saving invoice... total=$total, discount=$discount, net=$net")
+            Log.d("InvoiceSave", "Saving invoice... total=$total, discount=$discount, net=$net")
 
-                val invoice = Invoice(
-                    id = invoiceId ?: 0,
-                    customerName = customerName,
-                    customerAddress = customerAddress,
-                    date = date,
-                    time = time,
-                    discount = discount,
-                    total = total,
-                    netValue = net
-                )
+            val invoice = Invoice(
+                id = invoiceId ?: 0,
+                customerName = customerName,
+                customerAddress = customerAddress,
+                date = date,
+                time = time,
+                discount = discount,
+                total = total,
+                netValue = net
+            )
 
-                val id = if (invoiceId == null) {
-                    Log.d("InvoiceSave", "Inserting new invoice")
-                    dao.insertInvoice(invoice).toInt()
-                } else {
-                    Log.d("InvoiceSave", "Updating existing invoice id=$invoiceId")
-                    dao.deleteInvoiceItems(invoiceId)
-                    dao.deleteInvoice(invoice)
-                    dao.insertInvoice(invoice).toInt()
-                }
-
-                val updatedItems = _invoiceItems.value.map {
-                    it.copy(invoiceId = id)
-                }
-
-                dao.insertInvoiceItems(updatedItems)
-                currentInvoiceId = id
-                clearItems()
-
-                Log.d("InvoiceSave", "Invoice saved successfully with ID: $id")
+            val id = if (invoiceId == null) {
+                Log.d("InvoiceSave", "Inserting new invoice")
+                dao.insertInvoice(invoice).toInt()
+            } else {
+                Log.d("InvoiceSave", "Updating existing invoice id=$invoiceId")
+                dao.deleteInvoiceItems(invoiceId)
+                dao.deleteInvoice(invoice)
+                dao.insertInvoice(invoice).toInt()
             }
+
+            val updatedItems = _invoiceItems.value.map {
+                it.copy(invoiceId = id)
+            }
+
+            dao.insertInvoiceItems(updatedItems)
+            currentInvoiceId = id
+            clearItems()
+
+            Log.d("InvoiceSave", "Invoice saved successfully with ID: $id")
         }
-
-
     }
+
 
     fun getInvoiceItems(invoiceId: Int): Flow<List<InvoiceItem>> {
         return dao.getItemsForInvoice(invoiceId)
