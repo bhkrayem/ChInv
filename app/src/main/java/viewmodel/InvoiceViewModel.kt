@@ -82,4 +82,8 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
         return dao.getInvoiceById(id)
     }
 
+    fun loadExistingItems(existingItems: List<InvoiceItem>) {
+        _invoiceItems.value = existingItems
+    }
+
 }

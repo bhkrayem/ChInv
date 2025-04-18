@@ -50,7 +50,7 @@ import java.util.Date
 
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun InvoiceScreen(navController: NavHostController, invoiceId: Int = 0) {
+fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
     val context = LocalContext.current
     val dao = AppDatabase.getDatabase(context).invoiceDao()
     val viewModel = remember { InvoiceViewModel(dao) }
@@ -72,6 +72,24 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int = 0) {
     val total = items.sumOf { it.value }
     val discountValue = discount.toDoubleOrNull() ?: 0.0
     val net = total - discountValue
+
+
+    LaunchedEffect(invoiceId) {
+        if (invoiceId != null) {
+            dao.getAllInvoices().collect { list ->
+                val invoice = list.find { it.id == invoiceId }
+                invoice?.let {
+                    customerName = it.customerName
+                    customerAddress = it.customerAddress
+                    discount = it.discount.toString()
+                    saved = true
+                }
+            }
+            dao.getItemsForInvoice(invoiceId).collect { items ->
+                viewModel.loadExistingItems(items)
+            }
+        }
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
 
