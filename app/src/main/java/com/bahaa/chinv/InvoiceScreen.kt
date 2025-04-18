@@ -67,8 +67,9 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
 
     val items by viewModel.invoiceItems.collectAsState()
 
-    val date = remember { SimpleDateFormat("yyyy-MM-dd").format(Date()) }
-    val time = remember { SimpleDateFormat("HH:mm:ss").format(Date()) }
+    var date by remember { mutableStateOf(SimpleDateFormat("yyyy-MM-dd").format(Date())) }
+    var time by remember { mutableStateOf(SimpleDateFormat("HH:mm:ss").format(Date())) }
+
 
     val total = items.sumOf { it.value }
     val discountValue = discount.toDoubleOrNull() ?: 0.0
@@ -82,6 +83,9 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
                 customerName = it.customerName
                 customerAddress = it.customerAddress
                 discount = it.discount.toString()
+                date = it.date
+                time = it.time
+
                 saved = true
             }
 
@@ -93,7 +97,11 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
 
     Column(modifier = Modifier.padding(16.dp)) {
 
-        Text("Invoice #$nextInvoiceNumber", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Invoice #${invoiceId ?: nextInvoiceNumber}",
+            style = MaterialTheme.typography.titleMedium
+        )
+
         Text("Date: $date", style = MaterialTheme.typography.bodySmall)
         Text("Time: $time", style = MaterialTheme.typography.bodySmall)
 
