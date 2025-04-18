@@ -44,6 +44,7 @@ import com.bahaa.chinv.data.InvoiceItem
 import com.bahaa.chinv.data.Item
 import com.bahaa.chinv.viewmodel.CustomerViewModel
 import com.bahaa.chinv.viewmodel.InvoiceViewModel
+import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -76,20 +77,19 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
 
     LaunchedEffect(invoiceId) {
         if (invoiceId != null) {
-            dao.getAllInvoices().collect { list ->
-                val invoice = list.find { it.id == invoiceId }
-                invoice?.let {
-                    customerName = it.customerName
-                    customerAddress = it.customerAddress
-                    discount = it.discount.toString()
-                    saved = true
-                }
+            val invoice = dao.getAllInvoices().first().find { it.id == invoiceId }
+            invoice?.let {
+                customerName = it.customerName
+                customerAddress = it.customerAddress
+                discount = it.discount.toString()
+                saved = true
             }
-            dao.getItemsForInvoice(invoiceId).collect { items ->
-                viewModel.loadExistingItems(items)
-            }
+
+            val items = dao.getItemsForInvoice(invoiceId).first()
+            viewModel.loadExistingItems(items)
         }
     }
+
 
     Column(modifier = Modifier.padding(16.dp)) {
 
