@@ -1,5 +1,6 @@
 package com.bahaa.chinv.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bahaa.chinv.data.Invoice
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+
 
 class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
 
@@ -56,8 +58,10 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
                 val total = _invoiceItems.value.sumOf { it.value }
                 val net = total - discount
 
+                Log.d("InvoiceSave", "Saving invoice... total=$total, discount=$discount, net=$net")
+
                 val invoice = Invoice(
-                    id = invoiceId ?: 0, // Will be ignored if insert (new invoice)
+                    id = invoiceId ?: 0,
                     customerName = customerName,
                     customerAddress = customerAddress,
                     date = date,
@@ -68,13 +72,13 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
                 )
 
                 val id = if (invoiceId == null) {
-                    // New invoice
+                    Log.d("InvoiceSave", "Inserting new invoice")
                     dao.insertInvoice(invoice).toInt()
                 } else {
-                    // Edit mode — replace invoice
-                    dao.deleteInvoiceItems(invoiceId) // delete old items first
-                    dao.deleteInvoice(invoice)        // delete invoice record
-                    dao.insertInvoice(invoice).toInt() // re-insert as fresh
+                    Log.d("InvoiceSave", "Updating existing invoice id=$invoiceId")
+                    dao.deleteInvoiceItems(invoiceId)
+                    dao.deleteInvoice(invoice)
+                    dao.insertInvoice(invoice).toInt()
                 }
 
                 val updatedItems = _invoiceItems.value.map {
@@ -84,6 +88,8 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
                 dao.insertInvoiceItems(updatedItems)
                 currentInvoiceId = id
                 clearItems()
+
+                Log.d("InvoiceSave", "Invoice saved successfully with ID: $id")
             }
         }
 

@@ -196,6 +196,11 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Button(
                 onClick = {
+                    android.util.Log.d(
+                        "InvoiceDebug",
+                        "Button clicked: Saving invoice with customer: $customerName"
+                    )
+
                     viewModel.saveInvoice(
                         customerName,
                         customerAddress,
@@ -211,6 +216,7 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
             ) {
                 Text("Save")
             }
+
 
 
             Button(onClick = { saved = false }, enabled = saved) {
