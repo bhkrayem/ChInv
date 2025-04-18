@@ -96,7 +96,14 @@ fun ReportsScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         invoicesWithItems.forEach { (invoice, items) ->
-            Column(modifier = Modifier.padding(bottom = 12.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate("invoice_edit/${invoice.id}")
+                    }
+                    .padding(bottom = 12.dp)
+            ) {
                 Text("Invoice #${invoice.id}", style = MaterialTheme.typography.titleMedium)
                 Text("Customer: ${invoice.customerName}")
                 Text("Date: ${invoice.date}   Time: ${invoice.time}")
@@ -114,6 +121,7 @@ fun ReportsScreen(navController: NavHostController) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             }
         }
+
     }
 }
 

@@ -50,7 +50,7 @@ import java.util.Date
 
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun InvoiceScreen(navController: NavHostController) {
+fun InvoiceScreen(navController: NavHostController, invoiceId: Int = 0) {
     val context = LocalContext.current
     val dao = AppDatabase.getDatabase(context).invoiceDao()
     val viewModel = remember { InvoiceViewModel(dao) }

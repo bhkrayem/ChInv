@@ -77,4 +77,9 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
     fun getAllInvoices(): Flow<List<Invoice>> {
         return dao.getAllInvoices()
     }
+
+    fun getInvoiceById(id: Int): Flow<Invoice> {
+        return dao.getInvoiceById(id)
+    }
+
 }

@@ -54,6 +54,10 @@ fun AppNavGraph(
                 existingAddress = address
             )
         }
+        composable("invoice_edit/{invoiceId}") { backStackEntry ->
+            val invoiceId = backStackEntry.arguments?.getString("invoiceId")?.toIntOrNull() ?: 0
+            InvoiceScreen(navController, invoiceId)
+        }
 
     }
 
