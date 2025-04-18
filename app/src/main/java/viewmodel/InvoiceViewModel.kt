@@ -44,40 +44,49 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
         discount: Double,
         invoiceId: Int? = null
     ) {
-        viewModelScope.launch {
-            val total = _invoiceItems.value.sumOf { it.value }
-            val net = total - discount
+        fun saveInvoice(
+            customerName: String,
+            customerAddress: String,
+            date: String,
+            time: String,
+            discount: Double,
+            invoiceId: Int? = null
+        ) {
+            viewModelScope.launch {
+                val total = _invoiceItems.value.sumOf { it.value }
+                val net = total - discount
 
-            val invoice = Invoice(
-                id = invoiceId ?: 0, // <-- if editing, use real ID, otherwise new
-                customerName = customerName,
-                customerAddress = customerAddress,
-                date = date,
-                time = time,
-                discount = discount,
-                total = total,
-                netValue = net
-            )
+                val invoice = Invoice(
+                    id = invoiceId ?: 0, // Will be ignored if insert (new invoice)
+                    customerName = customerName,
+                    customerAddress = customerAddress,
+                    date = date,
+                    time = time,
+                    discount = discount,
+                    total = total,
+                    netValue = net
+                )
 
-            if (invoiceId != null) {
-                // Editing existing invoice
-                dao.deleteInvoiceItems(invoiceId) // remove old items
-                dao.insertInvoice(invoice)        // update invoice
-            } else {
-                // Creating new invoice
-                val newId = dao.insertInvoice(invoice).toInt()
-                currentInvoiceId = newId
+                val id = if (invoiceId == null) {
+                    // New invoice
+                    dao.insertInvoice(invoice).toInt()
+                } else {
+                    // Edit mode — replace invoice
+                    dao.deleteInvoiceItems(invoiceId) // delete old items first
+                    dao.deleteInvoice(invoice)        // delete invoice record
+                    dao.insertInvoice(invoice).toInt() // re-insert as fresh
+                }
+
+                val updatedItems = _invoiceItems.value.map {
+                    it.copy(invoiceId = id)
+                }
+
+                dao.insertInvoiceItems(updatedItems)
+                currentInvoiceId = id
+                clearItems()
             }
-
-            val finalInvoiceId = invoiceId ?: currentInvoiceId
-
-            val updatedItems = _invoiceItems.value.map {
-                it.copy(invoiceId = finalInvoiceId)
-            }
-
-            dao.insertInvoiceItems(updatedItems)
-            clearItems()
         }
+
 
     }
 

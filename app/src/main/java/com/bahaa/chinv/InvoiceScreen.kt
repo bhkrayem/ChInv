@@ -202,8 +202,9 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
                         date,
                         time,
                         discountValue,
-                        invoiceId // ← pass the invoiceId for editing
+                        invoiceId
                     )
+
                     saved = true
                 },
                 enabled = !saved
