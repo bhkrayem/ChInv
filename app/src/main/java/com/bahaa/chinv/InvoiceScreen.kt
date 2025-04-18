@@ -45,6 +45,7 @@ import com.bahaa.chinv.data.Item
 import com.bahaa.chinv.viewmodel.CustomerViewModel
 import com.bahaa.chinv.viewmodel.InvoiceViewModel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -59,6 +60,7 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
     val allCustomers by customerViewModel.customers.collectAsState()
     var showCustomerSuggestions by remember { mutableStateOf(false) }
     val nextInvoiceNumber by viewModel.getNextInvoiceNumber().collectAsState(initial = 1)
+    var invoiceIdLocal by remember { mutableStateOf(invoiceId) }
 
     var customerName by remember { mutableStateOf("") }
     var customerAddress by remember { mutableStateOf("") }
@@ -75,10 +77,12 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
     val discountValue = discount.toDoubleOrNull() ?: 0.0
     val net = total - discountValue
 
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(invoiceId) {
-        if (invoiceId != null) {
-            val invoice = dao.getAllInvoices().first().find { it.id == invoiceId }
+
+    LaunchedEffect(invoiceIdLocal) {
+        invoiceIdLocal?.let { id ->
+            val invoice = dao.getAllInvoices().first().find { it.id == id }
             invoice?.let {
                 customerName = it.customerName
                 customerAddress = it.customerAddress
@@ -89,7 +93,7 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
                 saved = true
             }
 
-            val items = dao.getItemsForInvoice(invoiceId).first()
+            val items = dao.getItemsForInvoice(id).first()
             viewModel.loadExistingItems(items)
         }
     }
@@ -98,7 +102,7 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
     Column(modifier = Modifier.padding(16.dp)) {
 
         Text(
-            "Invoice #${invoiceId ?: nextInvoiceNumber}",
+            "Invoice #${invoiceIdLocal ?: nextInvoiceNumber}",
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -196,21 +200,18 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Button(
                 onClick = {
-                    android.util.Log.d(
-                        "InvoiceDebug",
-                        "Button clicked: Saving invoice with customer: $customerName"
-                    )
-
-                    viewModel.saveInvoice(
-                        customerName,
-                        customerAddress,
-                        date,
-                        time,
-                        discountValue,
-                        invoiceId
-                    )
-
-                    saved = true
+                    scope.launch {
+                        val id = viewModel.saveInvoiceAndReturnId(
+                            customerName,
+                            customerAddress,
+                            date,
+                            time,
+                            discountValue,
+                            invoiceIdLocal
+                        )
+                        invoiceIdLocal = id
+                        saved = true
+                    }
                 },
                 enabled = !saved
             ) {
