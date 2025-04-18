@@ -41,13 +41,15 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
         customerAddress: String,
         date: String,
         time: String,
-        discount: Double
+        discount: Double,
+        invoiceId: Int? = null
     ) {
         viewModelScope.launch {
             val total = _invoiceItems.value.sumOf { it.value }
             val net = total - discount
 
             val invoice = Invoice(
+                id = invoiceId ?: 0, // <-- if editing, use real ID, otherwise new
                 customerName = customerName,
                 customerAddress = customerAddress,
                 date = date,
@@ -57,17 +59,26 @@ class InvoiceViewModel(private val dao: InvoiceDao) : ViewModel() {
                 netValue = net
             )
 
-            val invoiceId = dao.insertInvoice(invoice).toInt()
-            currentInvoiceId = invoiceId
-
-            val updatedItems = _invoiceItems.value.map {
-                it.copy(invoiceId = invoiceId)
+            if (invoiceId != null) {
+                // Editing existing invoice
+                dao.deleteInvoiceItems(invoiceId) // remove old items
+                dao.insertInvoice(invoice)        // update invoice
+            } else {
+                // Creating new invoice
+                val newId = dao.insertInvoice(invoice).toInt()
+                currentInvoiceId = newId
             }
 
+            val finalInvoiceId = invoiceId ?: currentInvoiceId
+
+            val updatedItems = _invoiceItems.value.map {
+                it.copy(invoiceId = finalInvoiceId)
+            }
 
             dao.insertInvoiceItems(updatedItems)
-            clearItems() // ✅ optional but helpful
+            clearItems()
         }
+
     }
 
     fun getInvoiceItems(invoiceId: Int): Flow<List<InvoiceItem>> {

@@ -186,12 +186,23 @@ fun InvoiceScreen(navController: NavHostController, invoiceId: Int? = null) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(onClick = {
-                viewModel.saveInvoice(customerName, customerAddress, date, time, discountValue)
-                saved = true
-            }, enabled = !saved) {
+            Button(
+                onClick = {
+                    viewModel.saveInvoice(
+                        customerName,
+                        customerAddress,
+                        date,
+                        time,
+                        discountValue,
+                        invoiceId // ← pass the invoiceId for editing
+                    )
+                    saved = true
+                },
+                enabled = !saved
+            ) {
                 Text("Save")
             }
+
 
             Button(onClick = { saved = false }, enabled = saved) {
                 Text("Edit")
