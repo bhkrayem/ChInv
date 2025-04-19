@@ -93,6 +93,24 @@ fun ReportsScreen(navController: NavHostController) {
             }
         }
 
+        Button(
+            onClick = {
+                coroutineScope.launch {
+                    val file = PdfUtils.createReportPdfToDownloads(context, invoicesWithItems)
+                    PdfUtils.sharePdf(context, file)
+                }
+            },
+            enabled = invoicesWithItems.isNotEmpty()
+        ) {
+            Text("Share PDF")
+        }
+
+
+
+
+
+
+
         Spacer(modifier = Modifier.height(16.dp))
 
         invoicesWithItems.forEach { (invoice, items) ->
